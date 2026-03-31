@@ -1,20 +1,10 @@
-# AAC to Text Converter Script
-# Konwersja pliku .aac na tekst za pomocą biblioteki Whisper
-
 import os
 import sys
 import argparse
 from pathlib import Path
 
-# Metoda 1: Użycie OpenAI Whisper (polecane - darmowe, offline)
 def transcribe_with_whisper(audio_file):
-    """
-    Transkrybuje plik audio do tekstu za pomocą OpenAI Whisper
-    
-    Wymagania:
-    pip install openai-whisper
-    Lub: pip install whisper
-    """
+
     try:
         import whisper
     except ImportError:
@@ -23,9 +13,6 @@ def transcribe_with_whisper(audio_file):
         return None
     
     print(f"Ładowanie modelu Whisper...")
-    # Dostępne modele: tiny, base, small, medium, large
-    # tiny - najszybszy, najmniej dokładny
-    # large - najwolniejszy, najbardziej dokładny
     model = whisper.load_model("base")
     
     print(f"Transkrybowanie pliku: {audio_file}")
@@ -34,14 +21,7 @@ def transcribe_with_whisper(audio_file):
     return result["text"]
 
 
-# Metoda 2: Użycie OpenAI API (wymaga API key)
 def transcribe_with_openai_api(audio_file, api_key):
-    """
-    Transkrybuje plik audio do tekstu za pomocą OpenAI API
-    
-    Wymagania:
-    pip install openai
-    """
     try:
         from openai import OpenAI
     except ImportError:
@@ -61,15 +41,7 @@ def transcribe_with_openai_api(audio_file, api_key):
     
     return transcript.text
 
-
-# Metoda 3: Użycie Google Speech Recognition (dla krótkich plików)
 def transcribe_with_google(audio_file):
-    """
-    Transkrybuje plik audio do tekstu za pomocą Google Speech Recognition
-    
-    Wymagania:
-    pip install SpeechRecognition pydub
-    """
     try:
         import speech_recognition as sr
         from pydub import AudioSegment
@@ -80,10 +52,8 @@ def transcribe_with_google(audio_file):
     
     print(f"Ładowanie pliku audio: {audio_file}")
     
-    # Załaduj plik audio
     sound = AudioSegment.from_file(audio_file)
-    
-    # Podziel na fragmenty po 60 sekund (Google ma limit czasu)
+
     chunk_length_ms = 60000
     chunks = [sound[i:i + chunk_length_ms] for i in range(0, len(sound), chunk_length_ms)]
     
@@ -93,11 +63,9 @@ def transcribe_with_google(audio_file):
     print(f"Transkrybowanie {len(chunks)} fragmentów audio...")
     
     for i, chunk in enumerate(chunks, 1):
-        # Eksportuj fragment
         chunk_path = f"chunk_{i}.wav"
         chunk.export(chunk_path, format="wav")
-        
-        # Transkrybuj fragment
+
         try:
             with sr.AudioFile(chunk_path) as source:
                 audio_data = recognizer.record(source)
@@ -109,7 +77,6 @@ def transcribe_with_google(audio_file):
         except sr.RequestError as e:
             print(f"Fragment {i}: Błąd API - {e}")
         finally:
-            # Usuń tymczasowy plik
             if os.path.exists(chunk_path):
                 os.remove(chunk_path)
     
@@ -117,7 +84,7 @@ def transcribe_with_google(audio_file):
 
 
 def save_to_file(text, output_file):
-    """Zapisuje tekst do pliku"""
+
     try:
         with open(output_file, 'w', encoding='utf-8') as f:
             f.write(text)
@@ -129,30 +96,19 @@ def save_to_file(text, output_file):
 
 
 def convert_aac_to_text(audio_file, output_file=None, method="whisper", api_key=None):
-    """
-    Główna funkcja do konwersji AAC na tekst
-    
-    Parametry:
-    - audio_file: ścieżka do pliku audio (.aac, .mp3, .wav, etc.)
-    - output_file: ścieżka do pliku wyjściowego (domyślnie: audio_file.txt)
-    - method: metoda transkrypcji ("whisper", "openai", "google")
-    - api_key: klucz API OpenAI (wymagany dla metody "openai")
-    """
-    
-    # Sprawdzenie, czy plik istnieje
+
     if not os.path.exists(audio_file):
         print(f"Błąd: Plik '{audio_file}' nie istnieje")
         return False
-    
-    # Ustawienie domyślnej nazwy pliku wyjściowego
+
+
     if output_file is None:
         output_file = Path(audio_file).stem + ".txt"
     
     print(f"Konwersja: {audio_file} -> {output_file}")
     print(f"Metoda: {method}")
     print("-" * 50)
-    
-    # Wybór metody transkrypcji
+
     if method == "whisper":
         text = transcribe_with_whisper(audio_file)
     elif method == "openai":
@@ -176,8 +132,8 @@ def convert_aac_to_text(audio_file, output_file=None, method="whisper", api_key=
     print("Transkrypcja zakończona!")
     print("\nWynik:")
     print(text[:200] + "..." if len(text) > 200 else text)
-    
-    # Zapis do pliku
+
+
     if save_to_file(text, output_file):
         return True
     else:
