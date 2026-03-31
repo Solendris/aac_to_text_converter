@@ -5,10 +5,10 @@ import whisper
 from pathlib import Path
 
 def transcribe_with_whisper(audio_file):
-    print(f"Ładowanie modelu Whisper...")
+    print(f"Loading Whisper model...")
     model = whisper.load_model("base")
     
-    print(f"Transkrybowanie pliku: {audio_file}")
+    print(f"Transcribing file: {audio_file}")
     result = model.transcribe(audio_file, language="pl")
     
     return result["text"]
@@ -19,32 +19,32 @@ def save_to_file(text, output_file):
     try:
         with open(output_file, 'w', encoding='utf-8') as f:
             f.write(text)
-        print(f"Tekst zapisany do: {output_file}")
+        print(f"Text saved to: {output_file}")
         return True
     except Exception as e:
-        print(f"Błąd przy zapisywaniu pliku: {e}")
+        print(f"Error saving file: {e}")
         return False
 
 
 def convert_aac_to_text(audio_file, output_file=None):
     if not os.path.exists(audio_file):
-        print(f"Błąd: Plik '{audio_file}' nie istnieje")
+        print(f"Error: File '{audio_file}' does not exist")
         return False
 
     if output_file is None:
         output_file = Path(audio_file).stem + ".txt"
     
-    print(f"Konwersja: {audio_file} -> {output_file}")
+    print(f"Converting: {audio_file} -> {output_file}")
     print("-" * 50)
 
     try:
         text = transcribe_with_whisper(audio_file)
         print("-" * 50)
-        print("Transkrypcja zakończona!")
-        print("\nWynik:")
+        print("Transcription complete!")
+        print("\nResult:")
         print(text[:200] + "..." if len(text) > 200 else text)
     except Exception as e:
-        print(f"Błąd: Transkrypcja nie powiodła się - {e}")
+        print(f"Error: Transcription failed - {e}")
         return False
 
     if save_to_file(text, output_file):
@@ -55,17 +55,17 @@ def convert_aac_to_text(audio_file, output_file=None):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Konwertuj plik audio (.aac, .mp3, .wav) na tekst"
+        description="Convert an audio file (.aac, .mp3, .wav) to text"
     )
     
     parser.add_argument(
         "input_file",
-        help="Ścieżka do pliku audio"
+        help="Path to the audio file"
     )
     
     parser.add_argument(
         "-o", "--output",
-        help="Ścieżka do pliku wyjściowego (domyślnie: input_file.txt)"
+        help="Path to the output file (default: input_file.txt)"
     )
     
     args = parser.parse_args()
