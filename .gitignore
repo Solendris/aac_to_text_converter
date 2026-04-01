@@ -3,3 +3,4 @@
 /wynik.txt
 __pycache__/aac_to_text.cpython-313.pyc
 __pycache__/test_aac_to_text.cpython-313-pytest-8.3.4.pyc
+.coverage

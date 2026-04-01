@@ -43,13 +43,9 @@ def convert_aac_to_text(audio_file, output_file=None):
         print("Transcription complete!")
         print("\nResult:")
         print(text[:200] + "..." if len(text) > 200 else text)
+        return save_to_file(text, output_file)
     except Exception as e:
         print(f"Error: Transcription failed - {e}")
-        return False
-
-    if save_to_file(text, output_file):
-        return True
-    else:
         return False
 
 
